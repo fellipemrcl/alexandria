@@ -12,6 +12,6 @@ public record BookDetailDTO(
     String isbn) {
 
   public BookDetail toBookDetail() {
-    return new BookDetail(id, summary, pageCount, year, isbn);
+    return new BookDetail(id, summary, pageCount, year, isbn, null);
   }
 }

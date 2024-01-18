@@ -57,35 +57,56 @@ public class BookService {
     return bookRepository.findAll();
   }
 
-  public BookDetail insertBookDetail(BookDetail bookDetail) {
-    return this.bookDetailRepository.save(bookDetail);
+  public Optional<BookDetail> insertBookDetail(Long bookId, BookDetail bookDetail) {
+    Optional<Book> optionalBook = bookRepository.findById(bookId);
+
+    if (optionalBook.isPresent()) {
+      Book book = optionalBook.get();
+      bookDetail.setBook(book);
+      BookDetail newBookDetail = bookDetailRepository.save(bookDetail);
+      return Optional.of(newBookDetail);
+    }
+
+    return Optional.empty();
   }
 
-  public Optional<BookDetail> updateBookDetail(Long id, BookDetail bookDetail) {
-    Optional<BookDetail> optionalBookDetail = bookDetailRepository.findById(id);
+  public Optional<BookDetail> updateBookDetail(Long bookId, BookDetail bookDetail) {
+    Optional<Book> optionalBook = bookRepository.findById(bookId);
 
-    if (optionalBookDetail.isPresent()) {
-      BookDetail bookDetailFromDB = optionalBookDetail.get();
-      bookDetailFromDB.setIsbn(bookDetail.getIsbn());
-      bookDetailFromDB.setPageCount(bookDetail.getPageCount());
+    if (optionalBook.isPresent()) {
+      Book book = optionalBook.get();
+      BookDetail bookDetailFromDB = book.getSetails();
+
       bookDetailFromDB.setSummary(bookDetail.getSummary());
+      bookDetailFromDB.setPageCount(bookDetail.getPageCount());
       bookDetailFromDB.setYear(bookDetail.getYear());
+      bookDetailFromDB.setIsbn(bookDetail.getIsbn());
 
       BookDetail updatedBookDetail = bookDetailRepository.save(bookDetailFromDB);
       return Optional.of(updatedBookDetail);
     }
 
-    return optionalBookDetail;
+    return Optional.empty();
   }
 
   public Optional<BookDetail> removeBookDetailById(Long id) {
-    Optional<BookDetail> optionalBookDetail = bookDetailRepository.findById(id);
+    Optional<Book> optionalBook = bookRepository.findById(id);
 
-    if (optionalBookDetail.isPresent()) {
-      bookDetailRepository.deleteById(id);
+    if (optionalBook.isPresent()) {
+      Book book = optionalBook.get();
+      Optional<BookDetail> optionalBookDetail = bookDetailRepository.findById(
+          book.getSetails().getId());
+
+      if (optionalBookDetail.isPresent()) {
+        book.setSetails(null);
+        BookDetail bookDetail = optionalBookDetail.get();
+        bookDetailRepository.deleteById(bookDetail.getId());
+
+        return Optional.of(bookDetail);
+      }
     }
 
-    return optionalBookDetail;
+    return Optional.empty();
   }
 
   public Optional<BookDetail> getBookDetailById(Long id) {

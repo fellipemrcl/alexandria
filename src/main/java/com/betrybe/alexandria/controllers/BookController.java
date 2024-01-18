@@ -93,12 +93,20 @@ public class BookController {
         .collect(Collectors.toList());
   }
 
-  @PostMapping("/{bookId}/details/")
-  public ResponseEntity<ResponseDTO<BookDetail>> createBookDetail(
+  @PostMapping("/{bookId}/details")
+  public ResponseEntity<ResponseDTO<BookDetail>> createBookDetail(@PathVariable Long bookId,
       @RequestBody BookDetailDTO bookDetailDTO) {
-    BookDetail newBookDetail = bookService.insertBookDetail(bookDetailDTO.toBookDetail());
-    ResponseDTO<BookDetail> responseDTO = new ResponseDTO<>("Detalhe do livro criado com sucesso!",
-        newBookDetail);
+    Optional<BookDetail> bookDetail = bookService.insertBookDetail(bookId,
+        bookDetailDTO.toBookDetail());
+
+    if (bookDetail.isEmpty()) {
+      ResponseDTO<BookDetail> responseDTO = new ResponseDTO<>(
+          String.format("Livro com id %d não encontrado", bookId), null);
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseDTO);
+    }
+
+    ResponseDTO<BookDetail> responseDTO = new ResponseDTO<>("Detalhes do livro criado com sucesso.",
+        bookDetail.get());
     return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
   }
 
