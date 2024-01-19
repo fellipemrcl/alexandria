@@ -197,4 +197,41 @@ public class BookController {
 
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDTO);
   }
+
+  @PutMapping("/{bookId}/author/{authorId}")
+  public ResponseEntity<ResponseDTO<Book>> setAuthor(@PathVariable Long bookId,
+      @PathVariable Long authorId) {
+    Optional<Book> optionalBook = bookService.setAuthor(bookId, authorId);
+
+    if (optionalBook.isEmpty()) {
+      ResponseDTO<Book> responseDTO = new ResponseDTO<>(
+          String.format(
+              "Não foi possível associar o livro de ID %d com a pessoa autora com o ID %d", bookId,
+              authorId), null);
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseDTO);
+    }
+
+    ResponseDTO<Book> responseDTO = new ResponseDTO<>(
+        "Autor vinculado ao livro com sucesso!", optionalBook.get());
+    return ResponseEntity.ok(responseDTO);
+  }
+
+  @DeleteMapping("/{bookId}/author/{authorId}")
+  public ResponseEntity<ResponseDTO<Book>> removeAuthor(@PathVariable Long bookId,
+      @PathVariable Long authorId) {
+    Optional<Book> optionalBook = bookService.removeAuthor(bookId, authorId);
+
+    if (optionalBook.isEmpty()) {
+      ResponseDTO<Book> responseDTO = new ResponseDTO<>(
+          String.format(
+              "Não foi possível desassociar o livro de ID %d com a pessoa autora com o ID %d",
+              bookId,
+              authorId), null);
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseDTO);
+    }
+
+    ResponseDTO<Book> responseDTO = new ResponseDTO<>(
+        "Autor desvinculado do livro com sucesso!", optionalBook.get());
+    return ResponseEntity.ok(responseDTO);
+  }
 }

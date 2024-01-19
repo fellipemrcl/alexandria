@@ -6,6 +6,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -30,6 +32,14 @@ public class Book {
   @JoinColumn(name = "publisher_id")
   private Publisher publisher;
 
+  @ManyToMany
+  @JoinTable(
+      name = "author_books",
+      joinColumns = @JoinColumn(name = "book_id"),
+      inverseJoinColumns = @JoinColumn(name = "author_id")
+  )
+  private List<Author> authors;
+
   public Book() {
   }
 
@@ -38,8 +48,17 @@ public class Book {
     this.id = id;
     this.title = title;
     this.genre = genre;
-    // this.details = details;
-    // this.publisher = publisher;
+    this.details = details;
+    this.publisher = publisher;
+    this.authors = authors;
+  }
+
+  public List<Author> getAuthors() {
+    return authors;
+  }
+
+  public void setAuthors(List<Author> authors) {
+    this.authors = authors;
   }
 
   public Publisher getPublisher() {
