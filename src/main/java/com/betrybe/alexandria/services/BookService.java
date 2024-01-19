@@ -2,8 +2,11 @@ package com.betrybe.alexandria.services;
 
 import com.betrybe.alexandria.models.entities.Book;
 import com.betrybe.alexandria.models.entities.BookDetail;
+import com.betrybe.alexandria.models.entities.Publisher;
+import com.betrybe.alexandria.models.repositories.AuthorRepository;
 import com.betrybe.alexandria.models.repositories.BookDetailRepository;
 import com.betrybe.alexandria.models.repositories.BookRepository;
+import com.betrybe.alexandria.models.repositories.PublisherRepository;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,11 +16,14 @@ public class BookService {
 
   private final BookRepository bookRepository;
   private final BookDetailRepository bookDetailRepository;
+  private final PublisherRepository publisherRepository;
 
   @Autowired
-  public BookService(BookRepository bookRepository, BookDetailRepository bookDetailRepository) {
+  public BookService(BookRepository bookRepository, BookDetailRepository bookDetailRepository,
+      PublisherRepository publisherRepository, AuthorRepository authorRepository) {
     this.bookRepository = bookRepository;
     this.bookDetailRepository = bookDetailRepository;
+    this.publisherRepository = publisherRepository;
   }
 
   public Book insertBook(Book book) {
@@ -75,7 +81,7 @@ public class BookService {
 
     if (optionalBook.isPresent()) {
       Book book = optionalBook.get();
-      BookDetail bookDetailFromDB = book.getSetails();
+      BookDetail bookDetailFromDB = book.getDetails();
 
       bookDetailFromDB.setSummary(bookDetail.getSummary());
       bookDetailFromDB.setPageCount(bookDetail.getPageCount());
@@ -95,10 +101,10 @@ public class BookService {
     if (optionalBook.isPresent()) {
       Book book = optionalBook.get();
       Optional<BookDetail> optionalBookDetail = bookDetailRepository.findById(
-          book.getSetails().getId());
+          book.getDetails().getId());
 
       if (optionalBookDetail.isPresent()) {
-        book.setSetails(null);
+        book.setDetails(null);
         BookDetail bookDetail = optionalBookDetail.get();
         bookDetailRepository.deleteById(bookDetail.getId());
 
@@ -111,5 +117,40 @@ public class BookService {
 
   public Optional<BookDetail> getBookDetailById(Long id) {
     return bookDetailRepository.findById(id);
+  }
+
+  public Optional<Book> setPublisher(Long bookId, Long publisherId) {
+    Optional<Book> optionalBook = bookRepository.findById(bookId);
+
+    if (optionalBook.isEmpty()) {
+      return Optional.empty();
+    }
+
+    Optional<Publisher> optionalPublisher = publisherRepository.findById(publisherId);
+
+    if (optionalPublisher.isEmpty()) {
+      return Optional.empty();
+    }
+
+    Book book = optionalBook.get();
+    Publisher publisher = optionalPublisher.get();
+    book.setPublisher(publisher);
+    Book updatedBook = bookRepository.save(book);
+
+    return Optional.of(updatedBook);
+  }
+
+  public Optional<Book> removePublisher(Long bookId) {
+    Optional<Book> optionalBook = bookRepository.findById(bookId);
+
+    if (optionalBook.isEmpty()) {
+      return Optional.empty();
+    }
+
+    Book book = optionalBook.get();
+    book.setPublisher(null);
+    Book newBook = bookRepository.save(book);
+
+    return Optional.of(newBook);
   }
 }

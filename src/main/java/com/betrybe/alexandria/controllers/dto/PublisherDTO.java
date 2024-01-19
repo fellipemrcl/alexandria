@@ -5,6 +5,6 @@ import com.betrybe.alexandria.models.entities.Publisher;
 public record PublisherDTO(Long id, String name, String address) {
 
   public Publisher toPublisher() {
-    return new Publisher(id, name, address);
+    return new Publisher(id, name, address, null);
   }
 }

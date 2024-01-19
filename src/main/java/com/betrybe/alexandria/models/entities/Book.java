@@ -5,6 +5,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.util.List;
@@ -22,25 +24,39 @@ public class Book {
   private String genre;
 
   @OneToOne(cascade = CascadeType.ALL, mappedBy = "book")
-  private BookDetail setails;
+  private BookDetail details;
+
+  @ManyToOne
+  @JoinColumn(name = "publisher_id")
+  private Publisher publisher;
 
   public Book() {
   }
 
-  public Book(Long id, String title, String genre, BookDetail setails, Publisher publisher,
+  public Book(Long id, String title, String genre, BookDetail details, Publisher publisher,
       List<Author> authors) {
     this.id = id;
     this.title = title;
     this.genre = genre;
-    this.setails = setails;
+    // this.details = details;
+    // this.publisher = publisher;
   }
 
-  public BookDetail getSetails() {
-    return setails;
+  public Publisher getPublisher() {
+    return publisher;
   }
 
-  public void setSetails(BookDetail setails) {
-    this.setails = setails;
+  public void setPublisher(Publisher publisher) {
+    this.publisher = publisher;
+  }
+
+
+  public BookDetail getDetails() {
+    return details;
+  }
+
+  public void setDetails(BookDetail setails) {
+    this.details = setails;
   }
 
   public Long getId() {
